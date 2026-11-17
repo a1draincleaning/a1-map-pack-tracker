@@ -19,7 +19,7 @@
 <body>
   <div class="shell">
     <header>
-      <div class="brand"><div class="mark">A-1</div><div><h1>Map Pack Tracker</h1><p>Local Google Maps rankings · Mason City, Iowa</p></div></div>
+      <div class="brand"><div class="mark">A-1</div><div><h1>Map Pack Tracker</h1><p>Google Local Pack rankings · Mason City, Iowa</p></div></div>
       <div class="status" id="status">Ready for first scan</div>
     </header>
     <div class="layout">
@@ -40,7 +40,7 @@
           <div class="field"><label for="device">Device</label><select id="device"><option value="mobile">Mobile</option><option value="desktop">Desktop</option></select></div>
           <div class="field"><label for="password">Tracker access password</label><input id="password" type="password" autocomplete="current-password" required></div>
           <p class="hint">DataForSEO credentials stay on the server. Your access password is kept only for this browser session.</p>
-          <button class="primary" id="run" type="submit">Run Google Maps scan</button>
+          <button class="primary" id="run" type="submit">Run Local Pack scan</button>
           <div class="error" id="error" role="alert"></div>
         </form>
       </aside>
@@ -52,7 +52,7 @@
           <div class="stat"><small>API cost · scan</small><strong id="cost">—</strong></div>
         </section>
         <section class="panel map-panel">
-          <div class="map-head"><h2>Local ranking grid</h2><span id="scan-meta">Map centered on Mason City, IA</span></div>
+          <div class="map-head"><h2>Google Local Pack grid</h2><span id="scan-meta">Google Local Pack · Mason City, IA</span></div>
           <div id="map" role="application" aria-label="Map showing Google Maps ranking positions at GPS grid points"></div>
           <div class="legend"><span><i class="dot" style="background:#22c55e"></i>Positions 1–3</span><span><i class="dot" style="background:#eab308"></i>Positions 4–10</span><span><i class="dot" style="background:#ef4444"></i>Positions 11–20</span><span><i class="dot" style="background:#64748b"></i>Not found in first 20</span></div>
         </section>
@@ -139,7 +139,7 @@
     $("scan-form").addEventListener("submit", async event => {
       event.preventDefault();
       $("error").style.display = "none";
-      $("run").disabled = true; $("run").textContent = "Scanning grid…"; $("status").textContent = "Checking Google Maps";
+      $("run").disabled = true; $("run").textContent = "Scanning grid…"; $("status").textContent = "Checking Google Local Pack";
       const accessPassword = $("password").value;
       sessionStorage.setItem("a1-map-pack-password", accessPassword);
       const body = {
