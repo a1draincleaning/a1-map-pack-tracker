@@ -4,9 +4,7 @@ A standalone Google Local Pack rank-grid tracker for A-1 Drain Cleaning in Mason
 
 ## What it measures
 
-This version checks the **Google organic Local Pack** at each GPS grid point using DataForSEO's Google Organic Live Advanced endpoint. It reads individual `local_pack` result items and records the position of the A-1 Drain Cleaning listing when it appears.
-
-This is distinct from the Google Maps results endpoint and from the expanded Google Local Finder list. A result not found means A-1 did not appear in the Local Pack returned for that coordinate and query; it does not prove the business is absent from Google Maps.
+This version checks the **Google organic Local Pack** at each GPS grid point using DataForSEO's Google Organic Live Advanced endpoint (`/v3/serp/google/organic/live/advanced`). It reads individual `local_pack` result items and records the position of the A-1 Drain Cleaning listing when it appears. This is distinct from the Google Maps results endpoint and from the expanded Google Local Finder list. A result not found means A-1 did not appear in the Local Pack returned for that coordinate and query; it does not prove the business is absent from Google Maps.
 
 ## Current implementation
 
@@ -52,3 +50,11 @@ Do not use a `VITE_` prefix. Do not commit `.env` or real credentials.
 This app needs server-side functions to keep API credentials private. GitHub Pages cannot run the API route. Import this repository into Vercel and add the three environment variables above.
 
 The dashboard stores recent scan summaries in the browser's local storage. It does not yet have shared, server-side historical storage; adding a persistent database is a later step.
+
+## Verification
+
+- Node syntax check passed for `api/scan.js`.
+- Dashboard smoke checks passed.
+- A mocked 3×3 Local Pack scan passed: nine GPS points, Local Pack item parsing, position extraction, and cost aggregation.
+- A live DataForSEO scan has not yet been run because API credentials have not been configured.
+- Vercel project creation was attempted but the connected Vercel account returned HTTP 403 (no project-create permission). The existing `a1-drain-cleaning` Vercel project was deliberately left untouched.
