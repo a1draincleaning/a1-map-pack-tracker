@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101d31">
+  <title>A-1 Map Pack Tracker</title>
+  <meta name="description" content="GPS-based Google Maps ranking grid tracker for A-1 Drain Cleaning in Mason City, Iowa.">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    :root{color-scheme:dark;--bg:#0b1422;--panel:#132238;--panel2:#192c44;--line:#2a405a;--text:#edf4fb;--muted:#9eb0c4;--blue:#38bdf8;--orange:#f97316;--green:#22c55e;--red:#ef4444}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+    button,input,select{font:inherit}button{cursor:pointer}.shell{max-width:1440px;margin:auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:14px}.mark{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--orange);font-weight:900;font-size:20px;color:#111827}.brand h1{font-size:20px;margin:0;letter-spacing:-.02em}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.status{border:1px solid var(--line);border-radius:99px;padding:7px 12px;color:var(--muted);font-size:12px}
+    .layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.panel h2{font-size:15px;margin:0 0 15px}.field{margin-bottom:13px}.field label{display:block;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:9px;background:#0d1929;color:var(--text);padding:10px 11px;outline:none}.field input:focus,.field select:focus{border-color:var(--blue)}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint{font-size:12px;color:var(--muted);margin:-5px 0 14px}.primary{width:100%;border:0;border-radius:10px;background:var(--orange);color:#fff;padding:12px;font-weight:800}.primary:disabled{opacity:.55;cursor:wait}.secondary{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 11px;border-radius:9px;font-size:12px;font-weight:700}.error{display:none;margin-top:12px;padding:10px;border:1px solid #7f1d1d;background:#451a1a;color:#fecaca;border-radius:9px;font-size:13px}.main{min-width:0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px}.stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em}.stat strong{display:block;font-size:24px;margin-top:4px}.map-panel{padding:0;overflow:hidden}.map-head{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid var(--line);gap:10px}.map-head h2{margin:0}.map-head span{color:var(--muted);font-size:12px}#map{height:480px;background:#1d3148}.legend{display:flex;gap:14px;flex-wrap:wrap;padding:12px 16px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.results{margin-top:16px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}.rank{font-weight:800}.rank.good{color:#4ade80}.rank.mid{color:#facc15}.rank.bad{color:#fb7185}.rank.none{color:#9ca3af}.history{margin-top:16px}.history-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.history-row small{display:block;color:var(--muted)}.empty{color:var(--muted);font-size:13px;padding:10px 0}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#132238;color:#edf4fb}.leaflet-popup-content{margin:10px 12px}.leaflet-container a{color:#38bdf8}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}#map{height:390px}}@media(max-width:520px){.shell{padding:14px}.status{display:none}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:20px}.map-head{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><div class="mark">A-1</div><div><h1>Map Pack Tracker</h1><p>Local Google Maps rankings · Mason City, Iowa</p></div></div>
+      <div class="status" id="status">Ready for first scan</div>
+    </header>
+    <div class="layout">
+      <aside class="panel">
+        <h2>Scan settings</h2>
+        <form id="scan-form">
+          <div class="field"><label for="keyword">Google search phrase</label><input id="keyword" value="drain cleaning" maxlength="120" required></div>
+          <div class="field"><label for="business">Business name to find</label><input id="business" value="A-1 Drain Cleaning" maxlength="120" required></div>
+          <div class="field"><label for="domain">Website domain (matching aid)</label><input id="domain" value="a1draincleaning.github.io"></div>
+          <div class="two">
+            <div class="field"><label for="lat">Center latitude</label><input id="lat" type="number" step="any" value="43.15371" required></div>
+            <div class="field"><label for="lng">Center longitude</label><input id="lng" type="number" step="any" value="-93.20016" required></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="grid">Grid size</label><select id="grid"><option value="3">3 × 3 · 9 points</option><option value="5">5 × 5 · 25 points</option></select></div>
+            <div class="field"><label for="radius">Radius (miles)</label><input id="radius" type="number" min=".5" max="20" step=".5" value="5"></div>
+          </div>
+          <div class="field"><label for="device">Device</label><select id="device"><option value="mobile">Mobile</option><option value="desktop">Desktop</option></select></div>
+          <div class="field"><label for="password">Tracker access password</label><input id="password" type="password" autocomplete="current-password" required></div>
+          <p class="hint">DataForSEO credentials stay on the server. Your access password is kept only for this browser session.</p>
+          <button class="primary" id="run" type="submit">Run Google Maps scan</button>
+          <div class="error" id="error" role="alert"></div>
+        </form>
+      </aside>
+      <main class="main">
+        <section class="stats" aria-label="Scan summary">
+          <div class="stat"><small>Average position</small><strong id="average">—</strong></div>
+          <div class="stat"><small>Top 3 positions</small><strong id="top3">—</strong></div>
+          <div class="stat"><small>Points found</small><strong id="found">—</strong></div>
+          <div class="stat"><small>API cost · scan</small><strong id="cost">—</strong></div>
+        </section>
+        <section class="panel map-panel">
+          <div class="map-head"><h2>Local ranking grid</h2><span id="scan-meta">Map centered on Mason City, IA</span></div>
+          <div id="map" role="application" aria-label="Map showing Google Maps ranking positions at GPS grid points"></div>
+          <div class="legend"><span><i class="dot" style="background:#22c55e"></i>Positions 1–3</span><span><i class="dot" style="background:#eab308"></i>Positions 4–10</span><span><i class="dot" style="background:#ef4444"></i>Positions 11–20</span><span><i class="dot" style="background:#64748b"></i>Not found in first 20</span></div>
+        </section>
+        <section class="panel results">
+          <div class="map-head" style="padding:0 0 12px;border:0"><h2>Grid point results</h2><button class="secondary" id="csv" disabled>Export CSV</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Point</th><th>Position</th><th>Business listing</th><th>Rating</th><th>Reviews</th><th>GPS</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="empty">Run a scan to see rankings.</td></tr></tbody></table></div>
+        </section>
+        <section class="panel history">
+          <div class="map-head" style="padding:0 0 8px;border:0"><h2>Recent scans on this device</h2><button class="secondary" id="clear-history">Clear history</button></div>
+          <div id="history-list" class="empty">No scans saved yet.</div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const map = L.map("map").setView([43.15371, -93.20016], 11);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+    const markers = L.layerGroup().addTo(map);
+    let latest = null;
+    const historyKey = "a1-map-pack-history-v1";
+    $("password").value = sessionStorage.getItem("a1-map-pack-password") || "";
+
+    function rankColor(rank) {
+      if (!rank) return "#64748b";
+      if (rank <= 3) return "#22c55e";
+      if (rank <= 10) return "#eab308";
+      return "#ef4444";
+    }
+    function rankClass(rank) {
+      if (!rank) return "none";
+      if (rank <= 3) return "good";
+      if (rank <= 10) return "mid";
+      return "bad";
+    }
+    function readHistory() {
+      try { return JSON.parse(localStorage.getItem(historyKey) || "[]"); } catch { return []; }
+    }
+    function saveHistory(scan) {
+      const history = readHistory();
+      history.unshift({ scannedAt: scan.scannedAt, keyword: scan.keyword, average: averageRank(scan.points), found: scan.points.filter(p => p.found).length, count: scan.points.length, cost: scan.totalCost });
+      localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 20)));
+      renderHistory();
+    }
+    function averageRank(points) {
+      const ranks = points.filter(p => p.rank).map(p => p.rank);
+      return ranks.length ? (ranks.reduce((a,b) => a+b, 0) / ranks.length) : null;
+    }
+    function renderHistory() {
+      const history = readHistory();
+      $("history-list").innerHTML = history.length ? history.map(item => {
+        const date = new Date(item.scannedAt).toLocaleString();
+        return '<div class="history-row"><div><strong>' + escapeHtml(item.keyword) + '</strong><small>' + date + ' · ' + item.found + '/' + item.count + ' points found</small></div><div><strong>' + (item.average ? item.average.toFixed(1) : 'Not found') + '</strong><small>Avg. position</small></div></div>';
+      }).join("") : "No scans saved yet.";
+    }
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+    }
+    function renderScan(scan) {
+      latest = scan;
+      markers.clearLayers();
+      const ranks = scan.points.filter(p => p.rank).map(p => p.rank);
+      const avg = averageRank(scan.points);
+      $("average").textContent = avg ? avg.toFixed(1) : "Not found";
+      $("top3").textContent = scan.points.filter(p => p.rank && p.rank <= 3).length;
+      $("found").textContent = scan.points.filter(p => p.found).length + "/" + scan.points.length;
+      $("cost").textContent = "$" + Number(scan.totalCost || 0).toFixed(4);
+      $("scan-meta").textContent = scan.keyword + " · " + scan.gridSize + "×" + scan.gridSize + " · " + new Date(scan.scannedAt).toLocaleString();
+      const bounds = [];
+      scan.points.forEach(point => {
+        const color = rankColor(point.rank);
+        const marker = L.circleMarker([point.lat, point.lng], { radius: 11, color: "#0b1422", weight: 2, fillColor: color, fillOpacity: .95 });
+        marker.bindTooltip(point.rank ? "Position #" + point.rank : "Not found in top 20", { direction: "top" });
+        marker.bindPopup("<strong>Grid point " + (point.index + 1) + "</strong><br>" + (point.rank ? "Position #" + point.rank : "Not found in first 20") + "<br>" + point.lat + ", " + point.lng + (point.listing ? "<br>" + escapeHtml(point.listing.title) : ""));
+        marker.addTo(markers); bounds.push([point.lat, point.lng]);
+      });
+      if (bounds.length) map.fitBounds(bounds, { padding: [35,35] });
+      $("rows").innerHTML = scan.points.map(point => '<tr><td>' + (point.index + 1) + '</td><td class="rank ' + rankClass(point.rank) + '">' + (point.rank ? "#" + point.rank : "Not found") + '</td><td>' + escapeHtml(point.listing?.title || "—") + '</td><td>' + (point.listing?.rating ?? "—") + '</td><td>' + (point.listing?.reviews ?? "—") + '</td><td>' + point.lat + ", " + point.lng + '</td></tr>').join("");
+      $("csv").disabled = false;
+      $("status").textContent = "Last scan completed";
+      saveHistory(scan);
+    }
+    $("scan-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      $("error").style.display = "none";
+      $("run").disabled = true; $("run").textContent = "Scanning grid…"; $("status").textContent = "Checking Google Maps";
+      const accessPassword = $("password").value;
+      sessionStorage.setItem("a1-map-pack-password", accessPassword);
+      const body = {
+        keyword: $("keyword").value.trim(), businessName: $("business").value.trim(),
+        businessDomain: $("domain").value.trim(), centerLat: Number($("lat").value),
+        centerLng: Number($("lng").value), gridSize: Number($("grid").value),
+        radiusMiles: Number($("radius").value), device: $("device").value, accessPassword
+      };
+      try {
+        const response = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Scan failed.");
+        renderScan(result);
+      } catch (error) {
+        $("error").textContent = error.message || "Unable to run scan."; $("error").style.display = "block"; $("status").textContent = "Scan failed";
+      } finally {
+        $("run").disabled = false; $("run").textContent = "Run Google Maps scan";
+      }
+    });
+    $("csv").addEventListener("click", () => {
+      if (!latest) return;
+      const lines = [["point","rank","found","business","domain","rating","reviews","latitude","longitude"], ...latest.points.map(p => [p.index+1,p.rank || "",p.found,p.listing?.title || "",p.listing?.domain || "",p.listing?.rating ?? "",p.listing?.reviews ?? "",p.lat,p.lng])];
+      const csv = lines.map(row => row.map(value => '"' + String(value).replace(/"/g,'""') + '"').join(",")).join("\n");
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      const a = document.createElement("a"); a.href = url; a.download = "a1-map-pack-" + new Date(latest.scannedAt).toISOString().slice(0,10) + ".csv"; a.click(); URL.revokeObjectURL(url);
+    });
+    $("clear-history").addEventListener("click", () => { localStorage.removeItem(historyKey); renderHistory(); });
+    renderHistory();
+  </script>
+</body>
+</html>
