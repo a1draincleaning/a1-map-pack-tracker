@@ -1,4 +1,4 @@
-const ENDPOINT = "https://api.dataforseo.com/v3/serp/google/maps/live/advanced";
+const ENDPOINT = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
 
 function clean(value) {
   return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -32,10 +32,10 @@ function listingMatches(item, businessName, businessDomain) {
 async function lookupPoint(point, input, authorization) {
   const payload = [{
     keyword: input.keyword,
-    location_coordinate: `${point.lat},${point.lng},14z`,
+    location_coordinate: `${point.lat},${point.lng},200`,
     language_code: "en",
     device: input.device,
-    depth: 20,
+    depth: 10,
     search_this_area: true,
     search_places: false
   }];
@@ -60,7 +60,8 @@ async function lookupPoint(point, input, authorization) {
   }
 
   const items = task?.result?.[0]?.items || [];
-  const found = items.find(item => listingMatches(item, input.businessName, input.businessDomain));
+  const localPackItems = items.filter(item => item.type === "local_pack");
+  const found = localPackItems.find(item => listingMatches(item, input.businessName, input.businessDomain));
   return {
     ...point,
     rank: found ? (found.rank_group || found.rank_absolute || null) : null,
@@ -72,7 +73,7 @@ async function lookupPoint(point, input, authorization) {
       rating: found.rating?.value ?? null,
       reviews: found.rating?.votes_count ?? null
     } : null,
-    resultCount: items.length,
+    resultCount: localPackItems.length,
     cost: Number(task.cost || 0)
   };
 }
@@ -131,6 +132,7 @@ export default async function handler(req, res) {
       scannedAt: new Date().toISOString(),
       keyword,
       businessName,
+      searchSurface: "Google organic Local Pack",
       center: { lat: centerLat, lng: centerLng },
       gridSize: size,
       radiusMiles,
