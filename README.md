@@ -1,17 +1,21 @@
 # A-1 Map Pack Tracker
 
-A standalone GPS-grid tracker for A-1 Drain Cleaning in Mason City, Iowa.
+A standalone Google Local Pack rank-grid tracker for A-1 Drain Cleaning in Mason City, Iowa.
+
+## What it measures
+
+This version checks the **Google organic Local Pack** at each GPS grid point using DataForSEO's Google Organic Live Advanced endpoint. It reads individual `local_pack` result items and records the position of the A-1 Drain Cleaning listing when it appears.
+
+This is distinct from the Google Maps results endpoint and from the expanded Google Local Finder list. A result not found means A-1 did not appear in the Local Pack returned for that coordinate and query; it does not prove the business is absent from Google Maps.
 
 ## Current implementation
 
-- Static dashboard with an OpenStreetMap/Leaflet map.
+- Leaflet/OpenStreetMap dashboard.
 - 3×3 and 5×5 GPS grids centered on a configurable coordinate.
-- Server-side DataForSEO Google Maps Live Advanced requests.
+- Real Google organic Local Pack checks through DataForSEO.
 - Per-point position, listing name, rating and review count.
 - CSV export.
 - Browser-local recent scan history (stored in the browser that ran the scan).
-
-**Important measurement note:** this version tracks positions in Google Maps results returned by DataForSEO's Google Maps endpoint. It does not currently measure the separate Google Search organic Local Pack/Local Finder surface. Those are different result types and should not be compared as if they were the same ranking.
 
 ## Run locally
 
@@ -38,10 +42,10 @@ Do not use a `VITE_` prefix. Do not commit `.env` or real credentials.
 
 ## Cost and scan size
 
-- A 3×3 grid runs 9 separate live Maps requests.
-- A 5×5 grid runs 25 separate live Maps requests.
-- The app displays the returned task costs when DataForSEO supplies them.
-- Each point is a real paid API request. Start with 3×3 while testing.
+- A 3×3 grid runs 9 live Local Pack requests.
+- A 5×5 grid runs 25 live Local Pack requests.
+- Each request asks for 10 SERP results, which is enough to capture a typical Local Pack response.
+- The app displays the returned task costs when DataForSEO supplies them. Every point is a paid live API request. Start with 3×3 while testing.
 
 ## Deploy
 
