@@ -1,0 +1,22 @@
+name: Verify Map Pack Tracker
+
+on:
+  push:
+    branches: [main, map-tracker-build]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run API tests
+        run: npm test
+      - name: Check serverless function syntax
+        run: node --check api/scan.js
