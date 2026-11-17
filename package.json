@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "GPS-based Google Maps ranking grid tracker for A-1 Drain Cleaning",
-  "engines": { "node": ">=20" },
-  "scripts": { "dev": "vercel dev" }
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "type": "module"
 }
